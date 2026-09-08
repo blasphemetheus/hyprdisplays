@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=hyprdisplays
+Comment=Arrange monitors, modes, mirroring and audio for Hyprland
+Exec=hyprdisplays
+Icon=preferences-desktop-display
+Categories=Settings;HardwareSettings;
+Terminal=false
