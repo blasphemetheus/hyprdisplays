@@ -1,5 +1,6 @@
 //! Writes the layout into `lua/monitors.lua` between marker comments, leaving
-//! everything outside the markers (the human commentary) untouched.
+//! everything outside the markers (the human commentary) untouched. Rules for
+//! displays that are not connected right now are carried over verbatim.
 
 use crate::hypr::MonitorCfg;
 use crate::model::Layout;
@@ -32,7 +33,48 @@ fn lua_rule(m: &MonitorCfg) -> String {
     s
 }
 
+/// Rules already inside the markers for displays that are NOT in `layout`
+/// (unplugged right now), each with the comment line above it.
+pub fn foreign_rules(existing: &str, layout: &Layout) -> Vec<String> {
+    let (Some(b), Some(e)) = (existing.find(BEGIN), existing.find(END)) else { return vec![] };
+    if e <= b { return vec![]; }
+    let block = &existing[b..e];
+    let mut out = vec![];
+    let mut pos = 0;
+    while let Some(rel) = block[pos..].find("hl.monitor({") {
+        let start = pos + rel;
+        let body_start = start + "hl.monitor({".len();
+        let Some(end_rel) = block[body_start..].find("})") else { break };
+        let body = &block[body_start..body_start + end_rel];
+        pos = body_start + end_rel + 2;
+        // first quoted string after `output`
+        let desc = body.find("output").and_then(|i| {
+            let rest = &body[i..];
+            let q1 = rest.find('"')? + 1;
+            let q2 = rest[q1..].find('"')? + q1;
+            Some(rest[q1..q2].to_string())
+        });
+        let Some(desc) = desc else { continue };
+        if desc.is_empty() { continue; } // the catch-all, always regenerated
+        let desc = desc.strip_prefix("desc:").unwrap_or(&desc).to_string();
+        if layout.monitors.iter().any(|m| m.description == desc) { continue; }
+        let comment = block[..start]
+            .lines()
+            .rev()
+            .find(|l| !l.trim().is_empty())
+            .filter(|l| l.starts_with("-- ") && !l.starts_with(BEGIN))
+            .map(|l| format!("{l}\n"))
+            .unwrap_or_default();
+        out.push(format!("{comment}hl.monitor({{{body}}})\n"));
+    }
+    out
+}
+
 pub fn render_block(layout: &Layout) -> String {
+    render_block_with(layout, &[])
+}
+
+pub fn render_block_with(layout: &Layout, keep: &[String]) -> String {
     let mut s = String::new();
     s.push_str(BEGIN);
     s.push('\n');
@@ -42,6 +84,13 @@ pub fn render_block(layout: &Layout) -> String {
     for m in &layout.monitors {
         s.push_str(&lua_rule(m));
         s.push('\n');
+    }
+    if !keep.is_empty() {
+        s.push_str("-- Not connected right now; carried over from the previous write.\n");
+        for k in keep {
+            s.push_str(k);
+            s.push('\n');
+        }
     }
     s.push_str(END);
     s.push('\n');
@@ -67,7 +116,8 @@ pub fn splice(existing: &str, block: &str) -> String {
 
 pub fn write(path: &Path, layout: &Layout) -> Result<()> {
     let existing = std::fs::read_to_string(path).unwrap_or_default();
-    let out = splice(&existing, &render_block(layout));
+    let keep = foreign_rules(&existing, layout);
+    let out = splice(&existing, &render_block_with(layout, &keep));
     let tmp = path.with_extension("lua.tmp");
     std::fs::write(&tmp, out).with_context(|| format!("writing {}", tmp.display()))?;
     std::fs::rename(&tmp, path).with_context(|| format!("renaming into {}", path.display()))?;
@@ -79,10 +129,13 @@ mod tests {
     use super::*;
     use crate::hypr::parse_monitors;
 
+    fn layout() -> Layout {
+        Layout::from_live(&parse_monitors(include_str!("../tests/fixtures/monitors_all.json")).unwrap())
+    }
+
     #[test]
     fn splice_preserves_text_outside_markers() {
-        let l = Layout::from_live(&parse_monitors(include_str!("../tests/fixtures/monitors_all.json")).unwrap());
-        let block = render_block(&l);
+        let block = render_block(&layout());
         let existing = format!("-- hand comment\nhl.monitor({{ output = \"x\" }})\n\n{BEGIN}\nold stuff\n{END}\n-- trailing\n");
         let out = splice(&existing, &block);
         assert!(out.starts_with("-- hand comment\nhl.monitor({ output = \"x\" })\n\n"));
@@ -90,13 +143,34 @@ mod tests {
         assert!(!out.contains("old stuff"));
         assert!(out.contains("desc:ASUSTek COMPUTER INC VY279HGR TCLMTR040596"));
         assert!(out.contains("position = \"1920x0\""));
-        // idempotent
-        assert_eq!(splice(&out, &block), out);
+        assert_eq!(splice(&out, &block), out); // idempotent
     }
 
     #[test]
     fn splice_appends_when_no_markers() {
-        let out = splice("-- only comments\n", "BLOCK\n");
-        assert_eq!(out, "-- only comments\n\nBLOCK\n");
+        assert_eq!(splice("-- only comments\n", "BLOCK\n"), "-- only comments\n\nBLOCK\n");
+    }
+
+    #[test]
+    fn keeps_rules_for_unplugged_displays() {
+        let l = layout();
+        let existing = format!(
+            "-- hand comment\n{BEGIN}\nhl.monitor({{ output = \"\", mode = \"preferred\" }})\n\n-- TV (Toshiba)\nhl.monitor({{\n    output   = \"desc:Toshiba TV 0x1\",\n    mode     = \"1920x1080@60\",\n    position = \"3840x0\",\n}})\n\n-- DP-2 (old)\nhl.monitor({{\n    output   = \"desc:ASUSTek COMPUTER INC VY279HGR TCLMTR040596\",\n    mode     = \"1920x1080@60\",\n}})\n{END}\n"
+        );
+        let keep = foreign_rules(&existing, &l);
+        assert_eq!(keep.len(), 1, "only the unplugged TV is kept: {keep:?}");
+        assert!(keep[0].starts_with("-- TV (Toshiba)\n"));
+        assert!(keep[0].contains("position = \"3840x0\""));
+        let out = splice(&existing, &render_block_with(&l, &keep));
+        assert!(out.contains("desc:Toshiba TV 0x1"));
+        assert!(out.contains("1920x1080@100")); // live DP-2 mode wins over the stale one
+        assert_eq!(out.matches("desc:ASUSTek COMPUTER INC VY279HGR").count(), 1);
+        // second write: the carried-over TV rule is still recognised and kept once
+        let keep2 = foreign_rules(&out, &l);
+        eprintln!("OUT=<<<{out}>>>\nKEEP2={keep2:#?}");
+        assert_eq!(keep2.len(), 1);
+        let out2 = splice(&out, &render_block_with(&l, &keep2));
+        assert_eq!(out2.matches("desc:Toshiba TV 0x1").count(), 1);
     }
 }
+
