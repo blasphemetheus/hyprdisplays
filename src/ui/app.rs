@@ -25,6 +25,7 @@ pub enum Message {
     MirrorChanged(String),
     SinkChanged(String),
     WakeBounce,
+    RescueWorkspaces,
     TvPreset,
     Normalize,
     WriteLua,
@@ -207,6 +208,7 @@ impl App {
                     }
                 })
             }
+            Message::RescueWorkspaces => { self.busy = true; run(|| { hypr::rescue_workspaces()?; Ok("workspaces re-homed to their monitors".into()) }) }
             Message::Normalize => { self.layout.normalize(); self.apply_all("normalized") }
             Message::WriteLua => {
                 let layout = self.layout.clone();
@@ -334,6 +336,9 @@ impl App {
             ],
             row![
                 button(text("HDMI wake bounce (60Hz → back)").size(13)).style(theme::quiet).on_press(Message::WakeBounce),
+            ],
+            row![
+                button(text("Rescue workspaces (after unplug)").size(13)).style(theme::quiet).on_press(Message::RescueWorkspaces),
             ],
         ]
         .spacing(8);

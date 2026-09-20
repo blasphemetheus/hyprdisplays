@@ -10,6 +10,8 @@ arrange monitors, pick modes, mirror, route audio, and persist it all.
 - **Presets**: mirror the focused monitor onto the selected one + HDMI audio
   (remembers the previous sink in `~/.local/state/hypr/mirror-prev-sink`);
   HDMI wake bounce (60 Hz → back) for links that won't retrain cold.
+  Rescue workspaces: re-home stray hyprsplit workspaces after a monitor unplug
+  (calls the dotfiles' `HYPRSPLIT_RESCUE()` via `hyprctl eval`).
 - **Persist**: "Write lua/monitors.lua" regenerates the block between
   `-- BEGIN hyprdisplays` / `-- END hyprdisplays` in `~/.config/hypr/lua/monitors.lua`
   and leaves everything else untouched; rules for displays that are unplugged

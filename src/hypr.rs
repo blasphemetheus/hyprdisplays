@@ -223,3 +223,11 @@ mod tests {
         assert!(d.lua().contains("scale = 1.25"));
     }
 }
+
+/// Re-home stray workspaces after a monitor unplug. `HYPRSPLIT_RESCUE` is defined in
+/// the dotfiles' `lua/plugins.lua` (hyprsplit sets pinned by monitor description); it
+/// moves each rogue workspace's windows into the host monitor's same-numbered slot.
+/// Hyprland also fires it itself 500 ms after `monitor.removed`; this is the manual path.
+pub fn rescue_workspaces() -> Result<()> {
+    eval("if HYPRSPLIT_RESCUE then HYPRSPLIT_RESCUE() else error(\"HYPRSPLIT_RESCUE not defined (dotfiles lua/plugins.lua)\") end")
+}
