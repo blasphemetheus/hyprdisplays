@@ -20,6 +20,13 @@ struct Cli {
     /// Write the current live layout into lua/monitors.lua and exit
     #[arg(long)]
     write_lua: bool,
+    /// List audio outputs (sinks + HDMI ports with the display on each) and exit
+    #[arg(long)]
+    outputs: bool,
+    /// Route audio to the HDMI port of a monitor (Hyprland name like HDMI-A-1,
+    /// or any part of its description / ELD name like "TOSHIBA") and exit
+    #[arg(long, value_name = "MONITOR")]
+    audio_to: Option<String>,
 }
 
 fn app_theme(_app: &App) -> iced::Theme {
@@ -40,6 +47,20 @@ fn main() -> Result<()> {
         let p = profiles::Profile { name: name.clone(), layout: Layout::from_live(&hypr::monitors()?), sink: audio::default_sink().ok() };
         profiles::save(&p)?;
         println!("saved profile '{name}'");
+        return Ok(());
+    }
+    if cli.outputs {
+        let snap = audio::snapshot()?;
+        let cur = snap.default_output();
+        for o in snap.outputs() {
+            println!("{} {}  [{}]", if Some(&o) == cur.as_ref() { "*" } else { " " }, o.label(), o.sink_name());
+        }
+        return Ok(());
+    }
+    if let Some(mon) = cli.audio_to {
+        // Accept a Hyprland output name (HDMI-A-1) by resolving it to its description.
+        let desc = hypr::monitors().ok().and_then(|ms| ms.into_iter().find(|m| m.name == mon).map(|m| m.description)).unwrap_or(mon);
+        println!("audio → {}", audio::route_to_monitor(&desc)?);
         return Ok(());
     }
     if cli.write_lua {

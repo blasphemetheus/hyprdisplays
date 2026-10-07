@@ -2,7 +2,7 @@
 name = "hyprdisplays"
 version = "0.1.0"
 edition = "2021"
-description = "Display manager for Hyprland: arrange, modes, mirror, audio, profiles"
+description = "Display manager (hyprdisplays) + PipeWire mixer (hyprvolume) for Hyprland"
 license = "MIT"
 
 [dependencies]

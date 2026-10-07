@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=hyprvolume
+Comment=PipeWire mixer: outputs (HDMI ports by monitor), app streams, inputs, card profiles
+Exec=hyprvolume
+Icon=multimedia-volume-control
+Categories=AudioVideo;Audio;Mixer;Settings;
+Terminal=false

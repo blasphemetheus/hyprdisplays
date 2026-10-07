@@ -19,9 +19,11 @@
         nativeBuildInputs = [ pkgs.pkg-config pkgs.makeWrapper ];
         buildInputs = runtimeLibs;
         postInstall = ''
-          wrapProgram $out/bin/hyprdisplays \
-            --prefix LD_LIBRARY_PATH : "${pkgs.lib.makeLibraryPath runtimeLibs}:/run/opengl-driver/lib"
-          install -Dm644 assets/hyprdisplays.desktop $out/share/applications/hyprdisplays.desktop
+          for bin in hyprdisplays hyprvolume; do
+            wrapProgram $out/bin/$bin \
+              --prefix LD_LIBRARY_PATH : "${pkgs.lib.makeLibraryPath runtimeLibs}:/run/opengl-driver/lib"
+            install -Dm644 assets/$bin.desktop $out/share/applications/$bin.desktop
+          done
         '';
         meta.mainProgram = "hyprdisplays";
       };

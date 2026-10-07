@@ -23,7 +23,7 @@ pub enum Message {
     VrrToggled(bool),
     EnabledToggled(bool),
     MirrorChanged(String),
-    SinkChanged(String),
+    OutputPicked(audio::Output),
     WakeBounce,
     RescueWorkspaces,
     TvPreset,
@@ -41,16 +41,14 @@ pub enum Message {
 #[derive(Debug, Clone)]
 pub struct Snapshot {
     pub monitors: Vec<Monitor>,
-    pub sinks: Vec<audio::Sink>,
-    pub default_sink: String,
+    pub audio: audio::Snapshot,
 }
 
 pub struct App {
     live: Vec<Monitor>,
     layout: Layout,
     selected: Option<usize>,
-    sinks: Vec<audio::Sink>,
-    default_sink: String,
+    audio: audio::Snapshot,
     profiles: Vec<String>,
     profile_name: String,
     status: String,
@@ -60,7 +58,7 @@ pub struct App {
 }
 
 fn snapshot() -> Result<Snapshot> {
-    Ok(Snapshot { monitors: hypr::monitors()?, sinks: audio::sinks().unwrap_or_default(), default_sink: audio::default_sink().unwrap_or_default() })
+    Ok(Snapshot { monitors: hypr::monitors()?, audio: audio::snapshot().unwrap_or_default() })
 }
 
 fn refresh() -> Task<Message> {
@@ -77,8 +75,7 @@ impl App {
             live: vec![],
             layout: Layout::default(),
             selected: None,
-            sinks: vec![],
-            default_sink: String::new(),
+            audio: audio::Snapshot::default(),
             profiles: profiles::list(),
             profile_name: String::new(),
             status: "reading monitors…".into(),
@@ -130,8 +127,7 @@ impl App {
                     self.selected = s.monitors.iter().position(|m| m.focused).or(if s.monitors.is_empty() { None } else { Some(0) });
                 }
                 self.live = s.monitors;
-                self.sinks = s.sinks;
-                self.default_sink = s.default_sink;
+                self.audio = s.audio;
                 if self.status.starts_with("reading") { self.status = "ready".into(); }
                 Task::none()
             }
@@ -153,10 +149,10 @@ impl App {
                 if let Some(c) = self.sel() { c.mirror = if v == "none" { None } else { Some(v) }; }
                 self.apply_selected()
             }
-            Message::SinkChanged(name) => {
-                self.default_sink = name.clone();
+            Message::OutputPicked(o) => {
+                self.audio.default_sink = o.sink_name();
                 self.busy = true;
-                run(move || { audio::set_default(&name)?; Ok(format!("audio → {name}")) })
+                run(move || { let n = audio::select_output(&o)?; Ok(format!("audio → {} ({n})", o.label())) })
             }
             Message::WakeBounce => {
                 let Some(cfg) = self.selected.and_then(|i| self.layout.monitors.get(i).cloned()) else { return Task::none() };
@@ -181,24 +177,30 @@ impl App {
                 // remembering the previous sink in the same state file mirror-toggle.sh uses.
                 let Some(i) = self.selected else { return Task::none() };
                 let focused = self.live.iter().find(|m| m.focused).map(|m| m.name.clone());
-                let hdmi = self.sinks.iter().find(|s| s.is_hdmi()).map(|s| s.name.clone());
                 let state = dirs::home_dir().unwrap_or_default().join(MIRROR_STATE);
-                let cur_sink = self.default_sink.clone();
+                let cur_sink = self.audio.default_sink.clone();
                 let target = &mut self.layout.monitors[i];
                 let turning_on = target.mirror.is_none();
                 target.mirror = if turning_on { focused.filter(|f| f != &target.name) } else { None };
                 let cfg = target.clone();
+                // The HDMI port the SELECTED monitor hangs off (by ELD name); the
+                // NVIDIA card only exposes one HDMI sink at a time, so "first sink
+                // with hdmi in the name" would be whichever port the profile is on.
+                let port = self.audio.hdmi_port_for_monitor(&cfg.description).map(audio::Output::Hdmi).or_else(|| {
+                    self.audio.hdmi_ports().into_iter().find(|p| p.monitor.is_some()).map(audio::Output::Hdmi)
+                });
                 self.busy = true;
                 self.dirty = true;
                 run(move || {
                     hypr::apply(&cfg)?;
                     if turning_on {
-                        if let Some(h) = hdmi {
-                            let _ = std::fs::create_dir_all(state.parent().unwrap());
-                            let _ = std::fs::write(&state, &cur_sink);
-                            audio::set_default(&h)?;
-                        }
-                        Ok(format!("{} mirrors {}, audio via HDMI", cfg.name, cfg.mirror.as_deref().unwrap_or("?")))
+                        let Some(port) = port else {
+                            return Ok(format!("{} mirrors {} (no HDMI audio port reports this display)", cfg.name, cfg.mirror.as_deref().unwrap_or("?")));
+                        };
+                        let _ = std::fs::create_dir_all(state.parent().unwrap());
+                        let _ = std::fs::write(&state, &cur_sink);
+                        audio::select_output(&port)?;
+                        Ok(format!("{} mirrors {}, audio → {}", cfg.name, cfg.mirror.as_deref().unwrap_or("?"), port.label()))
                     } else {
                         if let Ok(prev) = std::fs::read_to_string(&state) {
                             let _ = audio::set_default(prev.trim());
@@ -227,7 +229,7 @@ impl App {
             Message::SaveProfile => {
                 let name = self.profile_name.trim().to_string();
                 if name.is_empty() { self.status = "profile name?".into(); return Task::none(); }
-                let p = profiles::Profile { name: name.clone(), layout: self.layout.clone(), sink: Some(self.default_sink.clone()) };
+                let p = profiles::Profile { name: name.clone(), layout: self.layout.clone(), sink: Some(self.audio.default_sink.clone()) };
                 let r = profiles::save(&p);
                 self.profiles = profiles::list();
                 self.status = match r { Ok(()) => format!("saved profile '{name}'"), Err(e) => e.to_string() };
@@ -321,12 +323,13 @@ impl App {
         ]
         .spacing(10);
 
-        let sink_names: Vec<String> = self.sinks.iter().map(|s| s.description.clone()).collect();
-        let sink_sel = self.sinks.iter().find(|s| s.name == self.default_sink).map(|s| s.description.clone());
-        let sinks = self.sinks.clone();
+        // Outputs: plain sinks plus one entry per HDMI port with a display
+        // ("HDMI / DisplayPort 3 → TOSHIBA-TV"), inactive ports included.
+        let outputs = self.audio.outputs();
+        let out_sel = self.audio.default_output();
         let audio_row = row![
             text("Audio").width(90),
-            pick_list(sink_names, sink_sel, move |d| Message::SinkChanged(sinks.iter().find(|s| s.description == d).map(|s| s.name.clone()).unwrap_or_default())).width(Length::Fill),
+            pick_list(outputs, out_sel, Message::OutputPicked).width(Length::Fill),
         ]
         .spacing(10);
 

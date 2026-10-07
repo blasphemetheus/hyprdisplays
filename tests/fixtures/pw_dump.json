@@ -1,0 +1,841 @@
+[
+  {
+    "id": 40,
+    "type": "PipeWire:Interface:Metadata",
+    "props": {
+      "client.id": 35,
+      "factory.id": 7,
+      "metadata.name": "default",
+      "module.id": 6,
+      "object.serial": 40
+    },
+    "metadata": [
+      {
+        "subject": 0,
+        "key": "default.audio.sink",
+        "type": "Spa:String:JSON",
+        "value": {
+          "name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+        }
+      },
+      {
+        "subject": 0,
+        "key": "default.audio.source",
+        "type": "Spa:String:JSON",
+        "value": {
+          "name": "alsa_input.usb-Focusrite_Scarlett_2i2_USB-00.HiFi__Mic1__source"
+        }
+      }
+    ]
+  },
+  {
+    "id": 50,
+    "type": "PipeWire:Interface:Device",
+    "info": {
+      "props": {
+        "alsa.card": 0,
+        "device.description": "GB202 High Definition Audio Controller",
+        "device.name": "alsa_card.pci-0000_01_00.1",
+        "device.profile": "output:hdmi-stereo",
+        "media.class": "Audio/Device"
+      },
+      "params": {
+        "Profile": [
+          {
+            "index": 3,
+            "name": "output:hdmi-stereo-extra2"
+          }
+        ],
+        "EnumProfile": [
+          {
+            "index": 0,
+            "name": "off",
+            "description": "Off",
+            "available": "yes"
+          },
+          {
+            "index": 1,
+            "name": "output:hdmi-stereo",
+            "description": "Digital Stereo (HDMI) Output",
+            "available": "yes"
+          },
+          {
+            "index": 2,
+            "name": "output:hdmi-stereo-extra1",
+            "description": "Digital Stereo (HDMI 2) Output",
+            "available": "yes"
+          },
+          {
+            "index": 3,
+            "name": "output:hdmi-stereo-extra2",
+            "description": "Digital Stereo (HDMI 3) Output",
+            "available": "yes"
+          },
+          {
+            "index": 4,
+            "name": "output:hdmi-stereo-extra3",
+            "description": "Digital Stereo (HDMI 4) Output",
+            "available": "no"
+          },
+          {
+            "index": 5,
+            "name": "output:hdmi-surround-extra2",
+            "description": "Digital Surround 5.1 (HDMI 3) Output",
+            "available": "yes"
+          },
+          {
+            "index": 6,
+            "name": "output:hdmi-surround71-extra2",
+            "description": "Digital Surround 7.1 (HDMI 3) Output",
+            "available": "yes"
+          },
+          {
+            "index": 7,
+            "name": "output:hdmi-surround-extra3",
+            "description": "Digital Surround 5.1 (HDMI 4) Output",
+            "available": "no"
+          },
+          {
+            "index": 8,
+            "name": "output:hdmi-surround71-extra3",
+            "description": "Digital Surround 7.1 (HDMI 4) Output",
+            "available": "no"
+          },
+          {
+            "index": 9,
+            "name": "pro-audio",
+            "description": "Pro Audio",
+            "available": "unknown"
+          }
+        ],
+        "EnumRoute": [
+          {
+            "index": 0,
+            "name": "hdmi-output-0",
+            "description": "HDMI / DisplayPort",
+            "available": "yes",
+            "profiles": [
+              1
+            ]
+          },
+          {
+            "index": 1,
+            "name": "hdmi-output-1",
+            "description": "HDMI / DisplayPort 2",
+            "available": "yes",
+            "profiles": [
+              2
+            ]
+          },
+          {
+            "index": 2,
+            "name": "hdmi-output-2",
+            "description": "HDMI / DisplayPort 3",
+            "available": "yes",
+            "profiles": [
+              3,
+              5,
+              6
+            ]
+          },
+          {
+            "index": 3,
+            "name": "hdmi-output-3",
+            "description": "HDMI / DisplayPort 4",
+            "available": "no",
+            "profiles": [
+              4,
+              7,
+              8
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": 51,
+    "type": "PipeWire:Interface:Device",
+    "info": {
+      "props": {
+        "alsa.card": 2,
+        "device.description": "USB Audio",
+        "device.name": "alsa_card.usb-Generic_USB_Audio-00",
+        "media.class": "Audio/Device"
+      },
+      "params": {
+        "Profile": [
+          {
+            "index": 1,
+            "name": "HiFi"
+          }
+        ],
+        "EnumProfile": [
+          {
+            "index": 0,
+            "name": "off",
+            "description": "Off",
+            "available": "yes"
+          },
+          {
+            "index": 1,
+            "name": "HiFi",
+            "description": "HiFi 2.0 channels",
+            "available": "yes"
+          },
+          {
+            "index": 2,
+            "name": "HiFi 7+1",
+            "description": "HiFi 7.1 channels",
+            "available": "yes"
+          },
+          {
+            "index": 3,
+            "name": "HiFi 5+1",
+            "description": "HiFi 5.1 channels",
+            "available": "yes"
+          },
+          {
+            "index": 4,
+            "name": "pro-audio",
+            "description": "Pro Audio",
+            "available": "unknown"
+          }
+        ],
+        "EnumRoute": [
+          {
+            "index": 0,
+            "name": "[Out] SPDIF",
+            "description": "S/PDIF Output",
+            "available": "unknown",
+            "profiles": [
+              2,
+              3,
+              1
+            ]
+          },
+          {
+            "index": 1,
+            "name": "[Out] Speaker",
+            "description": "Speakers",
+            "available": "yes",
+            "profiles": [
+              2,
+              3,
+              1
+            ]
+          },
+          {
+            "index": 2,
+            "name": "[Out] Headphones",
+            "description": "Front Headphones",
+            "available": "no",
+            "profiles": [
+              2,
+              3,
+              1
+            ]
+          },
+          {
+            "index": 3,
+            "name": "[In] Line",
+            "description": "Line Input",
+            "available": "no",
+            "profiles": [
+              2,
+              3,
+              1
+            ]
+          },
+          {
+            "index": 4,
+            "name": "[In] Mic",
+            "description": "Microphone",
+            "available": "no",
+            "profiles": [
+              2,
+              3,
+              1
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": 52,
+    "type": "PipeWire:Interface:Device",
+    "info": {
+      "props": {
+        "alsa.card": 1,
+        "device.description": "Focusrite Scarlett 2i2 2nd Gen",
+        "device.name": "alsa_card.usb-Focusrite_Scarlett_2i2_USB-00",
+        "media.class": "Audio/Device"
+      },
+      "params": {
+        "Profile": [
+          {
+            "index": 1,
+            "name": "HiFi"
+          }
+        ],
+        "EnumProfile": [
+          {
+            "index": 0,
+            "name": "off",
+            "description": "Off",
+            "available": "yes"
+          },
+          {
+            "index": 1,
+            "name": "HiFi",
+            "description": "Default",
+            "available": "unknown"
+          },
+          {
+            "index": 2,
+            "name": "Direct",
+            "description": "Direct Scarlett 2i2 USB",
+            "available": "unknown"
+          },
+          {
+            "index": 3,
+            "name": "pro-audio",
+            "description": "Pro Audio",
+            "available": "yes"
+          }
+        ],
+        "EnumRoute": [
+          {
+            "index": 0,
+            "name": "[Out] Direct",
+            "description": "Direct Scarlett 2i2 USB",
+            "available": "unknown",
+            "profiles": [
+              2
+            ]
+          },
+          {
+            "index": 1,
+            "name": "[In] Direct",
+            "description": "Direct Scarlett 2i2 USB",
+            "available": "unknown",
+            "profiles": [
+              2
+            ]
+          },
+          {
+            "index": 2,
+            "name": "[Out] Line",
+            "description": "Headphones / Line 1-2",
+            "available": "unknown",
+            "profiles": [
+              1
+            ]
+          },
+          {
+            "index": 3,
+            "name": "[In] Mic2",
+            "description": "Input 2 Mic/Inst/Line",
+            "available": "unknown",
+            "profiles": [
+              1
+            ]
+          },
+          {
+            "index": 4,
+            "name": "[In] Mic1",
+            "description": "Input 1 Mic/Inst/Line",
+            "available": "unknown",
+            "profiles": [
+              1
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": 49,
+    "type": "PipeWire:Interface:Node",
+    "info": {
+      "props": {
+        "device.id": 51,
+        "media.class": "Audio/Sink",
+        "node.description": "USB Audio S/PDIF Output",
+        "node.name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+        "object.serial": 60
+      },
+      "params": {
+        "Props": [
+          {
+            "volume": 1.000000,
+            "mute": false,
+            "channelVolumes": [
+              0.999451,
+              0.999451
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": 59,
+    "type": "PipeWire:Interface:Node",
+    "info": {
+      "props": {
+        "device.id": 51,
+        "media.class": "Audio/Sink",
+        "node.description": "USB Audio Speakers",
+        "node.name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink",
+        "object.serial": 61
+      },
+      "params": {
+        "Props": [
+          {
+            "volume": 1.000000,
+            "mute": false,
+            "channelVolumes": [
+              0.999634,
+              0.999634
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": 60,
+    "type": "PipeWire:Interface:Node",
+    "info": {
+      "props": {
+        "device.id": 51,
+        "media.class": "Audio/Sink",
+        "node.description": "USB Audio Front Headphones",
+        "node.name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink",
+        "object.serial": 62
+      },
+      "params": {
+        "Props": [
+          {
+            "volume": 1.000000,
+            "mute": false,
+            "channelVolumes": [
+              1.000000,
+              1.000000
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": 61,
+    "type": "PipeWire:Interface:Node",
+    "info": {
+      "props": {
+        "device.id": 51,
+        "media.class": "Audio/Source",
+        "node.description": "USB Audio Line Input",
+        "node.name": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+        "object.serial": 63
+      },
+      "params": {
+        "Props": [
+          {
+            "volume": 1.000000,
+            "mute": false,
+            "channelVolumes": [
+              1.000000,
+              1.000000
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": 62,
+    "type": "PipeWire:Interface:Node",
+    "info": {
+      "props": {
+        "device.id": 51,
+        "media.class": "Audio/Source",
+        "node.description": "USB Audio Microphone",
+        "node.name": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source",
+        "object.serial": 64
+      },
+      "params": {
+        "Props": [
+          {
+            "volume": 1.000000,
+            "mute": false,
+            "channelVolumes": [
+              1.000000,
+              1.000000
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": 65,
+    "type": "PipeWire:Interface:Node",
+    "info": {
+      "props": {
+        "device.id": 52,
+        "media.class": "Audio/Sink",
+        "node.description": "Focusrite Scarlett 2i2 2nd Gen Headphones / Line 1-2",
+        "node.name": "alsa_output.usb-Focusrite_Scarlett_2i2_USB-00.HiFi__Line__sink",
+        "object.serial": 67
+      },
+      "params": {
+        "Props": [
+          {
+            "volume": 1.000000,
+            "mute": false,
+            "channelVolumes": [
+              1.000000,
+              1.000000
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": 67,
+    "type": "PipeWire:Interface:Node",
+    "info": {
+      "props": {
+        "device.id": 52,
+        "media.class": "Audio/Source",
+        "media.name": "Focusrite Scarlett 2i2 2nd Gen Input 2 Mic/Inst/Line output",
+        "node.description": "Focusrite Scarlett 2i2 2nd Gen Input 2 Mic/Inst/Line",
+        "node.name": "alsa_input.usb-Focusrite_Scarlett_2i2_USB-00.HiFi__Mic2__source",
+        "object.serial": 69
+      },
+      "params": {
+        "Props": [
+          {
+            "volume": 1.000000,
+            "mute": false,
+            "channelVolumes": [
+              1.000000
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": 69,
+    "type": "PipeWire:Interface:Node",
+    "info": {
+      "props": {
+        "device.id": 52,
+        "media.class": "Audio/Source",
+        "media.name": "Focusrite Scarlett 2i2 2nd Gen Input 1 Mic/Inst/Line output",
+        "node.description": "Focusrite Scarlett 2i2 2nd Gen Input 1 Mic/Inst/Line",
+        "node.name": "alsa_input.usb-Focusrite_Scarlett_2i2_USB-00.HiFi__Mic1__source",
+        "object.serial": 71
+      },
+      "params": {
+        "Props": [
+          {
+            "volume": 1.000000,
+            "mute": false,
+            "channelVolumes": [
+              1.000000
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": 103,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 66,
+      "input-node-id": 68
+    }
+  },
+  {
+    "id": 104,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 66,
+      "input-node-id": 70
+    }
+  },
+  {
+    "id": 107,
+    "type": "PipeWire:Interface:Node",
+    "info": {
+      "props": {
+        "application.name": "Google Chrome",
+        "media.class": "Stream/Output/Audio",
+        "media.name": "Playback",
+        "node.name": "Google Chrome",
+        "object.serial": 3690
+      },
+      "params": {
+        "Props": [
+          {
+            "volume": 1.000000,
+            "mute": false,
+            "channelVolumes": [
+              1.000000,
+              1.000000
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": 106,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 107,
+      "input-node-id": 59
+    }
+  },
+  {
+    "id": 118,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 107,
+      "input-node-id": 59
+    }
+  },
+  {
+    "id": 183,
+    "type": "PipeWire:Interface:Node",
+    "info": {
+      "props": {
+        "application.name": "VLC media player (LibVLC 3.0.23)",
+        "media.class": "Stream/Output/Audio",
+        "media.name": "audio stream",
+        "node.name": "VLC media player (LibVLC 3.0.23)",
+        "object.serial": 3823
+      },
+      "params": {
+        "Props": [
+          {
+            "volume": 1.000000,
+            "mute": false,
+            "channelVolumes": [
+              1.000000,
+              1.000000
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": 158,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 49,
+      "input-node-id": 175
+    }
+  },
+  {
+    "id": 156,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 49,
+      "input-node-id": 175
+    }
+  },
+  {
+    "id": 124,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 59,
+      "input-node-id": 176
+    }
+  },
+  {
+    "id": 152,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 59,
+      "input-node-id": 176
+    }
+  },
+  {
+    "id": 153,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 60,
+      "input-node-id": 182
+    }
+  },
+  {
+    "id": 123,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 60,
+      "input-node-id": 182
+    }
+  },
+  {
+    "id": 143,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 61,
+      "input-node-id": 178
+    }
+  },
+  {
+    "id": 147,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 61,
+      "input-node-id": 178
+    }
+  },
+  {
+    "id": 142,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 62,
+      "input-node-id": 173
+    }
+  },
+  {
+    "id": 137,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 62,
+      "input-node-id": 173
+    }
+  },
+  {
+    "id": 163,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 65,
+      "input-node-id": 177
+    }
+  },
+  {
+    "id": 166,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 65,
+      "input-node-id": 177
+    }
+  },
+  {
+    "id": 121,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 67,
+      "input-node-id": 128
+    }
+  },
+  {
+    "id": 133,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 69,
+      "input-node-id": 171
+    }
+  },
+  {
+    "id": 192,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 107,
+      "input-node-id": 172
+    }
+  },
+  {
+    "id": 193,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 107,
+      "input-node-id": 172
+    }
+  },
+  {
+    "id": 72,
+    "type": "PipeWire:Interface:Node",
+    "info": {
+      "props": {
+        "device.id": 50,
+        "media.class": "Audio/Sink",
+        "node.description": "GB202 High Definition Audio Controller Digital Stereo (HDMI 3)",
+        "node.name": "alsa_output.pci-0000_01_00.1.hdmi-stereo-extra2",
+        "object.serial": 4142
+      },
+      "params": {
+        "Props": [
+          {
+            "volume": 1.000000,
+            "mute": false,
+            "channelVolumes": [
+              1.000000,
+              1.000000
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": 186,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 72,
+      "input-node-id": 170
+    }
+  },
+  {
+    "id": 109,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 72,
+      "input-node-id": 170
+    }
+  },
+  {
+    "id": 174,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 183,
+      "input-node-id": 72
+    }
+  },
+  {
+    "id": 184,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 183,
+      "input-node-id": 72
+    }
+  },
+  {
+    "id": 199,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 183,
+      "input-node-id": 127
+    }
+  },
+  {
+    "id": 197,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 183,
+      "input-node-id": 127
+    }
+  }
+]
