@@ -1,4 +1,5 @@
 pub mod audio;
+pub mod binds;
 pub mod hypr;
 pub mod lua_writer;
 pub mod model;

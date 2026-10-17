@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=hyprbinds
+Comment=Show and edit Hyprland keybinds
+Exec=hyprbinds
+Icon=preferences-desktop-keyboard-shortcuts
+Categories=Settings;
+Terminal=false

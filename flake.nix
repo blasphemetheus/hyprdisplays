@@ -19,7 +19,7 @@
         nativeBuildInputs = [ pkgs.pkg-config pkgs.makeWrapper ];
         buildInputs = runtimeLibs;
         postInstall = ''
-          for bin in hyprdisplays hyprvolume; do
+          for bin in hyprdisplays hyprvolume hyprbinds; do
             wrapProgram $out/bin/$bin \
               --prefix LD_LIBRARY_PATH : "${pkgs.lib.makeLibraryPath runtimeLibs}:/run/opengl-driver/lib"
             install -Dm644 assets/$bin.desktop $out/share/applications/$bin.desktop

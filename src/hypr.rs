@@ -180,6 +180,11 @@ pub fn reload() -> Result<()> {
     hyprctl(&["reload"]).map(|_| ())
 }
 
+/// `hyprctl dispatch hl.dsp.submap("<name>")`; "reset" leaves the submap.
+pub fn submap(name: &str) -> Result<()> {
+    let r = hyprctl(&["dispatch", &format!("hl.dsp.submap(\"{name}\")")])?;
+    if r.starts_with("ok") || r.is_empty() { Ok(()) } else { Err(anyhow!("{r}")) }
+}
 #[cfg(test)]
 mod tests {
     use super::*;

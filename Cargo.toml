@@ -2,7 +2,7 @@
 name = "hyprdisplays"
 version = "0.1.0"
 edition = "2021"
-description = "Display manager (hyprdisplays) + PipeWire mixer (hyprvolume) for Hyprland"
+description = "Display manager (hyprdisplays), PipeWire mixer (hyprvolume) and keybind editor (hyprbinds) for Hyprland"
 license = "MIT"
 
 [dependencies]
