@@ -27,6 +27,7 @@ pub enum Message {
     WakeBounce,
     RescueWorkspaces,
     TvPreset,
+    UnmirrorAll,
     Normalize,
     WriteLua,
     ReloadConfig,
@@ -210,6 +211,29 @@ impl App {
                     }
                 })
             }
+            Message::UnmirrorAll => {
+                // Clear every mirror and re-apply only the monitors that changed;
+                // restore the pre-mirror audio sink if the TV preset stashed one.
+                let changed: Vec<MonitorCfg> = self.layout.monitors.iter_mut()
+                    .filter(|m| m.mirror.is_some())
+                    .map(|m| { m.mirror = None; m.clone() })
+                    .collect();
+                if changed.is_empty() { self.status = "nothing is mirrored".into(); return Task::none(); }
+                let state = dirs::home_dir().unwrap_or_default().join(MIRROR_STATE);
+                self.busy = true;
+                self.dirty = true;
+                run(move || {
+                    for c in &changed { hypr::apply(c)?; }
+                    let mut audio_note = "";
+                    if let Ok(prev) = std::fs::read_to_string(&state) {
+                        let _ = audio::set_default(prev.trim());
+                        let _ = std::fs::remove_file(&state);
+                        audio_note = ", audio restored";
+                    }
+                    let names: Vec<&str> = changed.iter().map(|c| c.name.as_str()).collect();
+                    Ok(format!("unmirrored {}{audio_note}", names.join(", ")))
+                })
+            }
             Message::RescueWorkspaces => { self.busy = true; run(|| { hypr::rescue_workspaces()?; Ok("workspaces re-homed to their monitors".into()) }) }
             Message::Normalize => { self.layout.normalize(); self.apply_all("normalized") }
             Message::WriteLua => {
@@ -333,10 +357,12 @@ impl App {
         ]
         .spacing(10);
 
+        let any_mirrored = self.layout.monitors.iter().any(|m| m.mirror.is_some());
         let actions = column![
             row![
                 button(text(if m.mirror.is_some() { "⟲ Stop mirroring / restore audio" } else { "⟲ Mirror focused → here + HDMI audio" }).size(13)).style(theme::primary).on_press(Message::TvPreset),
-            ],
+                button(text("Unmirror all").size(13)).style(theme::quiet).on_press_maybe(any_mirrored.then_some(Message::UnmirrorAll)),
+            ].spacing(8),
             row![
                 button(text("HDMI wake bounce (60Hz → back)").size(13)).style(theme::quiet).on_press(Message::WakeBounce),
             ],
